@@ -1,0 +1,12 @@
+include:
+  - project: 'redmic-project/gitlab-ci-templates'
+    ref: master
+    file: '/deployment.yml'
+
+stages:
+  - deploy
+
+.deploy:
+  variables:
+    STACK: storage
+    SERVICES_TO_CHECK: storage_${CI_PROJECT_NAME}
