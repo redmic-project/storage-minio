@@ -1,0 +1,37 @@
+version: '3.5'
+
+services:
+  minio:
+    image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
+    command: server /data
+    environment:
+      MINIO_ACCESS_KEY:
+      MINIO_SECRET_KEY:
+    networks:
+      traefik-net:
+    volumes:
+      - data-vol:/data
+    deploy:
+      mode: replicated
+      replicas: ${REPLICAS:-1}
+      restart_policy:
+        delay: ${RESTART_DELAY:-5s}
+      update_config:
+        delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-minio}.${PUBLIC_HOSTNAME}
+        traefik.backend: minio
+        traefik.port: '${PORT:-9000}'
+      resources:
+        limits:
+          cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-256M}
+        reservations:
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-64M}
+
+networks:
+  traefik-net:
+    name: ${TRAEFIK_NET_NAME:-traefik-net}
+    driver: ${TRAEFIK_NET_DRIVER:-overlay}
+    external: true
