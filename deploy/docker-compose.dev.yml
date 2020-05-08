@@ -1,5 +1,12 @@
 version: '3.5'
 
+services:
+  minio:
+    deploy:
+      placement:
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME:-hostname}
+
 volumes:
   data-vol:
     name: ${DATA_VOL_NAME:-minio-data-vol}
