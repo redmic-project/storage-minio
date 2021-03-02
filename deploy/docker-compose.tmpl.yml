@@ -12,7 +12,7 @@ services:
       traefik-net:
       gitlab-net:
     volumes:
-      - data-vol:/data
+      - data-vol:${DATA_PATH}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
@@ -47,3 +47,12 @@ networks:
     name: ${GITLAB_NET_NAME:-gitlab-net}
     driver: ${GITLAB_NET_DRIVER:-overlay}
     external: true
+
+volumes:
+  data-vol:
+    name: ${DATA_VOL_NAME:-minio-vol}
+    driver: local
+    driver_opts:
+      type: ${VOL_TYPE:-nfs4}
+      o: addr=${VOL_ADDR:-127.0.0.1},${VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      device: ${MINIO_VOL_DEVICE:-:/minio-vol/}

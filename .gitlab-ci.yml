@@ -6,12 +6,8 @@ include:
 stages:
   - deploy
 
-variables:
-  PROJECT_PARENT_NAME: storage
-
 .deploy:
   variables:
-    STACK: ${PROJECT_PARENT_NAME}
-    SERVICES_TO_CHECK: ${PROJECT_PARENT_NAME}_${CI_PROJECT_NAME}
+    STACK: storage
   environment:
     url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}
