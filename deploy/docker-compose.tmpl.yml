@@ -3,10 +3,12 @@ version: '3.5'
 services:
   minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
-    command: server /data
+    command: server ${DATA_PATH} --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
     environment:
-      MINIO_ACCESS_KEY:
-      MINIO_SECRET_KEY:
+      MINIO_ROOT_USER:
+      MINIO_ROOT_PASSWORD:
+      MINIO_REGION_NAME:
+      MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
     networks:
       minio-net:
       traefik-net:
@@ -21,9 +23,10 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-minio}.${PUBLIC_HOSTNAME}
+        traefik.server.frontend.rule: Host:${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+        traefik.console.frontend.rule: Host:${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.backend: minio
-        traefik.port: '${PORT:-9000}'
+        traefik.port: '${SERVER_PORT}'
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
