@@ -3,7 +3,7 @@ version: '3.5'
 services:
   minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
-    command: server ${DATA_PATH} --address :${SERVER_PORT}
+    command: server ${DATA_PATH} --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
     environment:
       MINIO_ROOT_USER:
       MINIO_ROOT_PASSWORD:
