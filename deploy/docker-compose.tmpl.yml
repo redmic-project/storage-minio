@@ -10,6 +10,7 @@ services:
       MINIO_SERVER_URL: http://localhost:${SERVER_PORT}
       MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_PROMETHEUS_URL:
+      MINIO_PROMETHEUS_JOB_ID:
       MINIO_PROMETHEUS_AUTH_TYPE:
     networks:
       minio-net:
