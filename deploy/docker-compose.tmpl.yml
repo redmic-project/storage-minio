@@ -10,6 +10,7 @@ services:
       MINIO_SERVER_URL: http://minio:${SERVER_PORT}
       MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_PROMETHEUS_URL:
+      MINIO_PROMETHEUS_AUTH_TYPE:
     networks:
       minio-net:
       traefik-net:
@@ -17,6 +18,12 @@ services:
       metric-net:
     volumes:
       - data-vol:${DATA_PATH}
+    healthcheck:
+      test: curl --fail --silent http://minio:${SERVER_PORT}/minio/health/live
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-5}
+      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
@@ -27,8 +34,8 @@ services:
       labels:
         traefik.server.frontend.rule: Host:${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.console.frontend.rule: Host:${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-        traefik.server.backend: ${TRAEFIK_SERVER_SUBDOMAIN}
-        traefik.console.backend: ${TRAEFIK_CONSOLE_SUBDOMAIN}
+        traefik.server.backend: server
+        traefik.console.backend: console
         traefik.server.port: '${SERVER_PORT}'
         traefik.console.port: '${CONSOLE_PORT}'
       resources:
