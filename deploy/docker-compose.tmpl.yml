@@ -7,11 +7,14 @@ services:
     environment:
       MINIO_ROOT_USER:
       MINIO_ROOT_PASSWORD:
-      MINIO_REGION_NAME:
+      MINIO_SERVER_URL: http://minio:${SERVER_PORT}
+      MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_PROMETHEUS_URL:
     networks:
       minio-net:
       traefik-net:
       gitlab-net:
+      metric-net:
     volumes:
       - data-vol:${DATA_PATH}
     deploy:
@@ -24,7 +27,8 @@ services:
       labels:
         traefik.server.frontend.rule: Host:${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
         traefik.console.frontend.rule: Host:${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-        traefik.backend: minio
+        traefik.server.backend: ${TRAEFIK_SERVER_SUBDOMAIN}
+        traefik.console.backend: ${TRAEFIK_CONSOLE_SUBDOMAIN}
         traefik.server.port: '${SERVER_PORT}'
         traefik.console.port: '${CONSOLE_PORT}'
       resources:
@@ -49,6 +53,11 @@ networks:
   gitlab-net:
     name: ${GITLAB_NET_NAME:-gitlab-net}
     driver: ${GITLAB_NET_DRIVER:-overlay}
+    external: true
+
+  metric-net:
+    name: ${METRIC_NET_NAME:-metric-net}
+    driver: ${METRIC_NET_DRIVER:-overlay}
     external: true
 
 volumes:
