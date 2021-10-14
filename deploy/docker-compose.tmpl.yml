@@ -3,16 +3,28 @@ version: '3.5'
 services:
   minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
-    command: server /data
+    command: server ${DATA_PATH} --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
     environment:
-      MINIO_ACCESS_KEY:
-      MINIO_SECRET_KEY:
+      MINIO_ROOT_USER:
+      MINIO_ROOT_PASSWORD:
+      MINIO_SERVER_URL: https://${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_PROMETHEUS_URL:
+      MINIO_PROMETHEUS_JOB_ID:
+      MINIO_PROMETHEUS_AUTH_TYPE:
     networks:
       minio-net:
       traefik-net:
       gitlab-net:
+      metric-net:
     volumes:
       - data-vol:${DATA_PATH}
+    healthcheck:
+      test: curl --fail --silent http://localhost:${SERVER_PORT}/minio/health/live
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-5}
+      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
@@ -21,16 +33,19 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.frontend.rule: Host:${TRAEFIK_SUBDOMAIN:-minio}.${PUBLIC_HOSTNAME}
-        traefik.backend: minio
-        traefik.port: '${PORT:-9000}'
+        traefik.server.frontend.rule: Host:${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+        traefik.console.frontend.rule: Host:${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+        traefik.server.backend: server
+        traefik.console.backend: console
+        traefik.server.port: '${SERVER_PORT}'
+        traefik.console.port: '${CONSOLE_PORT}'
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
           memory: ${RESOURCES_LIMITS_MEMORY:-256M}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-64M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-128M}
 
 networks:
   minio-net:
@@ -46,6 +61,11 @@ networks:
   gitlab-net:
     name: ${GITLAB_NET_NAME:-gitlab-net}
     driver: ${GITLAB_NET_DRIVER:-overlay}
+    external: true
+
+  metric-net:
+    name: ${METRIC_NET_NAME:-metric-net}
+    driver: ${METRIC_NET_DRIVER:-overlay}
     external: true
 
 volumes:
