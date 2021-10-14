@@ -7,7 +7,7 @@ services:
     environment:
       MINIO_ROOT_USER:
       MINIO_ROOT_PASSWORD:
-      MINIO_SERVER_URL: http://localhost:${SERVER_PORT}
+      MINIO_SERVER_URL: https://${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_PROMETHEUS_URL:
       MINIO_PROMETHEUS_JOB_ID:
@@ -45,7 +45,7 @@ services:
           memory: ${RESOURCES_LIMITS_MEMORY:-256M}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-64M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-128M}
 
 networks:
   minio-net:
