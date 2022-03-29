@@ -13,7 +13,7 @@ You only have to run `minio/mc` Docker container with shell as entrypoint and ru
 ```sh
 docker run --rm -it --entrypoint=/bin/sh minio/mc
 
-$ mc alias set minio https://minioapi.redmic.grafcan.es '<access-key>' '<secret-key>'
+$ mc alias set minio https://minioapi.change.me '<access-key>' '<secret-key>'
 ```
 
 With this alias defined, you can run any command on remote Minio Server from your local Minio Client.
