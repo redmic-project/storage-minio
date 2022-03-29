@@ -15,7 +15,6 @@ services:
     networks:
       minio-net:
       traefik-net:
-      gitlab-net:
       metric-net:
     volumes:
       - data-vol:${DATA_PATH}
@@ -58,21 +57,7 @@ networks:
     driver: ${TRAEFIK_NET_DRIVER:-overlay}
     external: true
 
-  gitlab-net:
-    name: ${GITLAB_NET_NAME:-gitlab-net}
-    driver: ${GITLAB_NET_DRIVER:-overlay}
-    external: true
-
   metric-net:
     name: ${METRIC_NET_NAME:-metric-net}
     driver: ${METRIC_NET_DRIVER:-overlay}
     external: true
-
-volumes:
-  data-vol:
-    name: ${DATA_VOL_NAME:-minio-vol}
-    driver: local
-    driver_opts:
-      type: ${VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR:-127.0.0.1},${VOL_OPTIONS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
-      device: ${MINIO_VOL_DEVICE:-:/minio-vol/}
