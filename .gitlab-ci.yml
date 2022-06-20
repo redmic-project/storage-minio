@@ -9,5 +9,3 @@ stages:
 .deploy:
   variables:
     STACK: storage
-  environment:
-    url: https://${CI_PROJECT_NAME}.${PUBLIC_HOSTNAME}

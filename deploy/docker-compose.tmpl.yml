@@ -1,4 +1,4 @@
-version: '3.5'
+version: '3.9'
 
 services:
   minio:
@@ -41,10 +41,10 @@ services:
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-256M}
+          memory: ${RESOURCES_LIMITS_MEMORY:-512M}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-128M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-256M}
 
 networks:
   minio-net:
