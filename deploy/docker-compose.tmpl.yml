@@ -7,7 +7,7 @@ services:
     environment:
       MINIO_ROOT_USER:
       MINIO_ROOT_PASSWORD:
-      MINIO_SERVER_URL: https://${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_SERVER_URL: http://127.0.0.1:${SERVER_PORT}
       MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_PROMETHEUS_URL:
       MINIO_PROMETHEUS_JOB_ID:
@@ -19,7 +19,7 @@ services:
     volumes:
       - data-vol:${DATA_PATH}
     healthcheck:
-      test: curl --fail --silent http://localhost:${SERVER_PORT}/minio/health/live
+      test: curl --fail --silent http://127.0.0.1:${SERVER_PORT}/minio/health/live
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-5}
