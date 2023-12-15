@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
@@ -32,12 +30,17 @@ services:
       update_config:
         delay: ${UPDATE_DELAY:-1m}
       labels:
-        traefik.server.frontend.rule: Host:${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-        traefik.console.frontend.rule: Host:${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
-        traefik.server.backend: server
-        traefik.console.backend: console
-        traefik.server.port: '${SERVER_PORT}'
-        traefik.console.port: '${CONSOLE_PORT}'
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+
+        traefik.http.routers.minio-server.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.minio-server.rule: Host(`${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.routers.minio-server.service: minio-server
+        traefik.http.services.minio-server.loadbalancer.server.port: ${SERVER_PORT}
+
+        traefik.http.routers.minio-console.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.minio-console.rule: Host(`${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.routers.minio-console.service: minio-console
+        traefik.http.services.minio-console.loadbalancer.server.port: ${CONSOLE_PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
