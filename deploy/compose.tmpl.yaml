@@ -1,5 +1,3 @@
-version: '3.9'
-
 services:
   minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
