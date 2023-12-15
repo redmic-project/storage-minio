@@ -13,9 +13,9 @@ networks:
 
 volumes:
   data-vol:
-    name: ${DATA_VOL_NAME:-minio-vol}
-    driver: local
+    name: ${DATA_VOL_NAME}
+    driver: ${VOL_DRIVER}
     driver_opts:
-      type: ${VOL_TYPE:-nfs4}
-      o: addr=${VOL_ADDR:-127.0.0.1},${VOL_OPTS:-rw,nolock,noatime,tcp,rsize=8192,wsize=8192,timeo=14}
+      type: ${VOL_TYPE}
+      o: addr=${VOL_ADDR},${VOL_OPTS}
       device: ${DATA_VOL_DEVICE:-:/minio-vol/}
