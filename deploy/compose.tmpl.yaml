@@ -16,12 +16,6 @@ services:
       metric-net:
     volumes:
       - data-vol:${DATA_PATH}
-    healthcheck:
-      test: curl --fail --silent http://127.0.0.1:${SERVER_PORT}/minio/health/live
-      interval: ${HEALTHCHECK_INTERVAL:-30s}
-      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
-      retries: ${HEALTHCHECK_RETRIES:-5}
-      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
@@ -40,11 +34,20 @@ services:
         traefik.http.routers.minio-server.rule: Host(`${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.routers.minio-server.service: minio-server
         traefik.http.services.minio-server.loadbalancer.server.port: ${SERVER_PORT}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
 
         traefik.http.routers.minio-console.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.minio-console.rule: Host(`${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.routers.minio-console.service: minio-console
         traefik.http.services.minio-console.loadbalancer.server.port: ${CONSOLE_PORT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.port: ${SERVER_PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'
