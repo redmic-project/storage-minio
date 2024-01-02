@@ -1,5 +1,5 @@
 services:
-  minio-snsd:
+  minio:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
     command: server --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
     environment:
@@ -35,24 +35,24 @@ services:
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
 
-        traefik.http.routers.minio-server-snsd.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.minio-server-snsd.rule: HostRegexp(`{bucket:[A-z0-9.-]*}${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
-        traefik.http.routers.minio-server-snsd.service: minio-server-snsd
-        traefik.http.services.minio-server-snsd.loadbalancer.server.port: ${SERVER_PORT}
-        traefik.http.services.minio-server-snsd.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
-        traefik.http.services.minio-server-snsd.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
-        traefik.http.services.minio-server-snsd.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
-        traefik.http.services.minio-server-snsd.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
+        traefik.http.routers.minio-server.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.minio-server.rule: HostRegexp(`{bucket:[A-z0-9.-]*}${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.routers.minio-server.service: minio-server
+        traefik.http.services.minio-server.loadbalancer.server.port: ${SERVER_PORT}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
 
-        traefik.http.routers.minio-console-snsd.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.minio-console-snsd.rule: Host(`${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
-        traefik.http.routers.minio-console-snsd.service: minio-console-snsd
-        traefik.http.services.minio-console-snsd.loadbalancer.server.port: ${CONSOLE_PORT}
-        traefik.http.services.minio-console-snsd.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
-        traefik.http.services.minio-console-snsd.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
-        traefik.http.services.minio-console-snsd.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
-        traefik.http.services.minio-console-snsd.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
-        traefik.http.services.minio-console-snsd.loadbalancer.healthcheck.port: ${SERVER_PORT}
+        traefik.http.routers.minio-console.entrypoints: ${TRAEFIK_ENTRYPOINT}
+        traefik.http.routers.minio-console.rule: Host(`${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.routers.minio-console.service: minio-console
+        traefik.http.services.minio-console.loadbalancer.server.port: ${CONSOLE_PORT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.port: ${SERVER_PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-1}'

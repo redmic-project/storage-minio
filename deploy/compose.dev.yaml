@@ -1,5 +1,5 @@
 services:
-  minio-snsd:
+  minio:
     networks:
       gitlab-net:
 
