@@ -1,5 +1,5 @@
 services:
-  minio:
+  minio-snsd:
     image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
     command: server ${DATA_PATH} --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
     environment:
@@ -25,10 +25,14 @@ services:
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
+      placement:
+        max_replicas_per_node: 1
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME:-node-hostname}
       restart_policy:
         delay: ${RESTART_DELAY:-5s}
       update_config:
-        delay: ${UPDATE_DELAY:-1m}
+        delay: ${UPDATE_DELAY:-5m}
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
 
@@ -43,11 +47,11 @@ services:
         traefik.http.services.minio-console.loadbalancer.server.port: ${CONSOLE_PORT}
       resources:
         limits:
-          cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-512M}
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-640M}
         reservations:
-          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-256M}
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-320M}
 
 networks:
   minio-net:

@@ -11,9 +11,4 @@ networks:
 
 volumes:
   data-vol:
-    name: ${DATA_VOL_NAME}
-    driver: ${VOL_DRIVER}
-    driver_opts:
-      type: ${VOL_TYPE}
-      o: addr=${VOL_ADDR},${VOL_OPTS}
-      device: ${DATA_VOL_DEVICE:-:/minio-vol/}
+    name: ${DATA_VOL_NAME}-{{.Node.Hostname}}
