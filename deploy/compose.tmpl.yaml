@@ -2,6 +2,7 @@ services:
   minio:
     image: ${IMAGE_NAME:-quay.io/minio/minio}:${IMAGE_TAG:-latest}
     command: server
+    hostname: minio-{{.Node.Hostname}}
     environment:
       MINIO_ADDRESS: :${SERVER_PORT}
       MINIO_CONSOLE_ADDRESS: :${CONSOLE_PORT}
@@ -39,7 +40,7 @@ services:
       restart_policy:
         delay: ${RESTART_DELAY:-5s}
       update_config:
-        delay: ${UPDATE_DELAY:-5m}
+        delay: ${UPDATE_DELAY:-0s}
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
 
