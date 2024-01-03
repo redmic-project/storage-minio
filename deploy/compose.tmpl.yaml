@@ -1,8 +1,10 @@
 services:
   minio:
-    image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
-    command: server --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
+    image: ${IMAGE_NAME:-quay.io/minio/minio}:${IMAGE_TAG:-latest}
+    command: server
     environment:
+      MINIO_ADDRESS: :${SERVER_PORT}
+      MINIO_CONSOLE_ADDRESS: :${CONSOLE_PORT}
       MINIO_VOLUMES: ${DATA_PATH}
       MINIO_DOMAIN: ${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_ROOT_USER:
@@ -21,6 +23,12 @@ services:
       metric-net:
     volumes:
       - data-vol:${DATA_PATH}
+    healthcheck:
+      test: ["CMD", "mc", "ping", "-x", "local"]
+      interval: ${HEALTHCHECK_INTERVAL:-30s}
+      timeout: ${HEALTHCHECK_TIMEOUT:-15s}
+      retries: ${HEALTHCHECK_RETRIES:-5}
+      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
