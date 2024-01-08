@@ -27,13 +27,13 @@ Manage bucket lifecycle with `ilm` command.
 Add simple rule (30 days expiry time):
 
 ```sh
-mc ilm add minio/<bucket> --expiry-days "30"
+mc ilm rule add minio/<bucket> --expiry-days "30"
 ```
 
 Add complex rule (30 days expiry time for objects with `test/` prefix):
 
 ```sh
-mc ilm import minio/<bucket> <<EOF
+mc ilm rule import minio/<bucket> <<EOF
 {
     "Rules": [
         {
@@ -54,5 +54,5 @@ EOF
 List lifecycle configuration set on a bucket:
 
 ```sh
-mc ilm ls minio/<bucket>
+mc ilm rule ls minio/<bucket>
 ```

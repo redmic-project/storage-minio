@@ -1,12 +1,20 @@
 services:
   minio:
-    image: ${IMAGE_NAME:-minio/minio}:${IMAGE_TAG:-latest}
-    command: server ${DATA_PATH} --address :${SERVER_PORT} --console-address :${CONSOLE_PORT}
+    image: ${IMAGE_NAME:-quay.io/minio/minio}:${IMAGE_TAG:-latest}
+    command: server
+    hostname: minio-{{.Node.Hostname}}
     environment:
+      MINIO_ADDRESS: :${SERVER_PORT}
+      MINIO_CONSOLE_ADDRESS: :${CONSOLE_PORT}
+      MINIO_VOLUMES: ${DATA_PATH}
+      MINIO_DOMAIN: ${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
       MINIO_ROOT_USER:
       MINIO_ROOT_PASSWORD:
-      MINIO_SERVER_URL: http://127.0.0.1:${SERVER_PORT}
+      MINIO_BROWSER:
+      MINIO_SERVER_URL: https://${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_BROWSER_REDIRECT:
       MINIO_BROWSER_REDIRECT_URL: https://${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}
+      MINIO_BROWSER_SESSION_DURATION:
       MINIO_PROMETHEUS_URL:
       MINIO_PROMETHEUS_JOB_ID:
       MINIO_PROMETHEUS_AUTH_TYPE:
@@ -17,7 +25,7 @@ services:
     volumes:
       - data-vol:${DATA_PATH}
     healthcheck:
-      test: curl --fail --silent http://127.0.0.1:${SERVER_PORT}/minio/health/live
+      test: ["CMD", "mc", "ping", "-x", "local"]
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-15s}
       retries: ${HEALTHCHECK_RETRIES:-5}
@@ -25,29 +33,42 @@ services:
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
+      placement:
+        max_replicas_per_node: 1
+        constraints:
+          - node.hostname == ${PLACEMENT_CONSTRAINTS_NODE_HOSTNAME:-node-hostname}
       restart_policy:
         delay: ${RESTART_DELAY:-5s}
       update_config:
-        delay: ${UPDATE_DELAY:-1m}
+        delay: ${UPDATE_DELAY:-0s}
       labels:
         traefik.enable: ${TRAEFIK_ENABLE:-true}
 
         traefik.http.routers.minio-server.entrypoints: ${TRAEFIK_ENTRYPOINT}
-        traefik.http.routers.minio-server.rule: Host(`${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
+        traefik.http.routers.minio-server.rule: HostRegexp(`{bucket:[A-z0-9.-]*}${TRAEFIK_SERVER_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.routers.minio-server.service: minio-server
         traefik.http.services.minio-server.loadbalancer.server.port: ${SERVER_PORT}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-server.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
 
         traefik.http.routers.minio-console.entrypoints: ${TRAEFIK_ENTRYPOINT}
         traefik.http.routers.minio-console.rule: Host(`${TRAEFIK_CONSOLE_SUBDOMAIN}.${PUBLIC_HOSTNAME}`)
         traefik.http.routers.minio-console.service: minio-console
         traefik.http.services.minio-console.loadbalancer.server.port: ${CONSOLE_PORT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.path: ${TRAEFIK_HEALTHCHECK_PATH}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.method: ${TRAEFIK_HEALTHCHECK_METHOD}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.interval: ${TRAEFIK_HEALTHCHECK_INTERVAL}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.timeout: ${TRAEFIK_HEALTHCHECK_TIMEOUT}
+        traefik.http.services.minio-console.loadbalancer.healthcheck.port: ${SERVER_PORT}
       resources:
         limits:
-          cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
-          memory: ${RESOURCES_LIMITS_MEMORY:-512M}
+          cpus: '${RESOURCES_LIMITS_CPUS:-1}'
+          memory: ${RESOURCES_LIMITS_MEMORY:-640M}
         reservations:
-          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-256M}
+          cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.1}'
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-320M}
 
 networks:
   minio-net:
